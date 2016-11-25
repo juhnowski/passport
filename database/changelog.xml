@@ -1,0 +1,108 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd"
+        logicalFilePath="digital.asap/passcheck">
+    <changeSet id="1" author="digrabok">
+        <createTable tableName="cron_job_log">
+            <column name="id" type="serial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cronjob_pk" />
+            </column>
+            <column name="start_date" type="timestamp with time zone">
+                <constraints nullable="false" />
+            </column>
+            <column name="end_date" type="timestamp with time zone" />
+            <column name="status" type="character varying(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="error_desc" type="character varying(1024)" />
+            <column name="upload_type" type="character varying(20)" />
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="digrabok">
+        <createTable tableName="passcheck_conf">
+            <column name="id" type="serial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pass_check_c_pk" />
+            </column>
+            <column name="prop_name" type="character varying(32)">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="prop_value" type="character varying(256)" />
+            <column name="updated" type="timestamp with time zone" defaultValueComputed="now()">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="3" author="digrabok" >
+        <sql splitStatements="false">
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('month', '*');
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('dayOfWeek', '0');
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('hour', '3');
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('minute', '0');
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('csvURL', 'http://www.fms.gov.ru/upload/expired-passports/list_of_expired_passports.csv.bz2');
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('jdbcDbUrl', 'jdbc:postgresql://localhost:5432/passcheck');
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('jdbcUser', 'sa');
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('jdbcPass', 'sa');
+        </sql>
+    </changeSet>
+    <changeSet id="4" author="digrabok">
+        <createTable tableName="passport">
+            <column name="passp_series" type="character varying(4)">
+                <constraints nullable="false" />
+            </column>
+            <column name="passp_number" type="character varying(6)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="5" author="digrabok">
+        <addPrimaryKey tableName="passport" columnNames="passp_series, passp_number" constraintName="passport_pkey" />
+    </changeSet>
+    <changeSet id="6" author="digrabok">
+        <createTable tableName="passport_temp">
+            <column name="passp_series" type="character varying(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="passp_number" type="character varying(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="7" author="digrabok">
+        <createTable tableName="principles">
+            <column name="principal_id" type="character varying(64)">
+                <constraints nullable="false" primaryKeyName="principles_pkey" primaryKey="true" />
+            </column>
+            <column name="password" type="character varying(64)" />
+        </createTable>
+    </changeSet>
+    <changeSet id="8" author="digrabok">
+        <sql>
+            Insert into PRINCIPLES(principal_id, password) values('adminUser','admin123')
+        </sql>
+    </changeSet>
+    <changeSet id="9" author="digrabok">
+        <createTable tableName="roles">
+            <column name="principal_id" type="character varying(64)">
+                <constraints nullable="false" />
+            </column>
+            <column name="user_role" type="character varying(64)">
+                <constraints nullable="false" />
+            </column>
+            <column name="role_group" type="character varying(64)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="10" author="digrabok">
+        <sql>
+            Insert into ROLES(principal_id, user_role, role_group) values('adminUser','passpinfo_client','admin')
+        </sql>
+    </changeSet>
+    <changeSet id="11" author="digrabok">
+        <sql>
+            INSERT INTO passcheck_conf(prop_name, prop_value) VALUES ('csvRowRegex', '^[^,]{1,4},[^,]{1,6}$');
+        </sql>
+    </changeSet>
+</databaseChangeLog>

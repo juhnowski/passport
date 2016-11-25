@@ -1,0 +1,6 @@
+changeLogFile=database/changelog.xml
+driver=org.postgresql.Driver
+username=sa
+password=sa
+url=jdbc:postgresql://localhost:5432/passcheck
+verbose=true
